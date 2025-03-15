@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaमिका - Emergency SOS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            text-align: center;
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar .links a {
+            margin: 0 15px;
+            text-decoration: none;
+            font-size: 1rem;
+            color: white;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .navbar .links a:hover {
+            color: #ff4081;
+        }
+
+        .sos-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .sos-button {
+            width: 150px;
+            height: 150px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        .sos-button:hover {
+            background-color: darkred;
+            transform: scale(1.1);
+        }
+
+        .logout-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo">Vaमिका</div>
+        <div class="links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+            <button class="logout-button" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="sos-container">
+        <h2>Emergency SOS</h2>
+        <button class="sos-button" onclick="triggerSOS()">SOS</button>
+    </div>
+
+    <script>
+        let userLocation = null;
+
+        // 🔹 Request Location Permission on Page Load
+        function requestLocationPermission() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude
+                        };
+                        console.log("✅ Location Permission Granted:", userLocation);
+                    },
+                    (error) => {
+                        alert("❌ Location permission is required for SOS! Please enable location services.");
+                        console.error("🔥 Location error:", error);
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                alert("❌ Geolocation is not supported in your browser.");
+            }
+        }
+
+        // 🔹 Check Location Permission Every 10 Seconds
+        setInterval(requestLocationPermission, 10000);
+
+        // 🔹 Trigger SOS Function
+        async function triggerSOS() {
+            if (!userLocation) {
+                alert("❌ Location not available! Please enable GPS and try again.");
+                return;
+            }
+
+            try {
+                const locationLink = `https://maps.google.com/?q=${userLocation.lat},${userLocation.lon}`;
+                const token = localStorage.getItem("token");
+
+                // 🔹 Fetch User Security Numbers from Backend
+                const userResponse = await fetch("http://localhost:5000/api/auth/profile", {
+                    method: "GET",
+                    headers: { "Authorization": token }
+                });
+
+                if (!userResponse.ok) {
+                    alert("❌ Failed to fetch security numbers. Please login again.");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                const userData = await userResponse.json();
+                const securityNumbers = userData.securityNumbers || [];
+
+                if (securityNumbers.length === 0) {
+                    alert("❌ No security numbers found! Please add emergency contacts.");
+                    return;
+                }
+
+                // 🔹 Generate SOS Message
+                const message = encodeURIComponent(`🚨 EMERGENCY SOS! 🚨\n\nI am in danger! Please help me!\n📍 Location: ${locationLink}`);
+
+                // 🔹 Send SOS to Each Contact via WhatsApp
+                securityNumbers.forEach(number => {
+                    window.open(`https://wa.me/${number}?text=${message}`, '_blank');
+                });
+
+            } catch (error) {
+                console.error("🔥 SOS Error:", error);
+                alert("❌ Failed to send SOS. Try again!");
+            }
+        }
+
+        // 🔹 Logout Function
+        function logout() {
+            localStorage.removeItem("token");
+            alert("✅ Logged out successfully!");
+            window.location.href = "login.html";
+        }
+
+        // 🔹 Ensure Location Permission is Granted When User Logs In
+        document.addEventListener("DOMContentLoaded", requestLocationPermission);
+    </script>
+
+</body>
+</html>

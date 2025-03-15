@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Women Safety Analytics</title>
+    <style>
+        /* Keeping the existing CSS from the original file */
+        :root {
+            --primary-color: #ff3b8c;
+            --secondary-color: #6a3de8;
+            --dark-color: #1a1a2e;
+            --light-color: #f0f0f5;
+            --accent-color: #00e1a9;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        
+        nav ul li a:hover, nav ul li a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: var(--dark-color);
+        }
+        
+        .btn-secondary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tagline {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background-color: rgba(26, 26, 46, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .card-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .map-card {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+        
+        .quote-card {
+            grid-column: span 2;
+        }
+        
+        .stats-card {
+            grid-column: span 2;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            background-color: #203354;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDgwMHY2MDBIMHoiIGZpbGw9IiMyMDMzNTQiLz48cGF0aCBkPSJNNTAgNTBoNzAwdjUwMEg1MHoiIGZpbGw9IiMxYTI4NDUiIHN0cm9rZT0iIzM0NGM3MCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTEwMCAxMDBoNjAwdjQwMEgxMDB6IiBmaWxsPSIjMTUyMjNiIiBzdHJva2U9IiMzNDRjNzAiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Ik0yMDAgMTUwaDQwMHYzMDBIMjAweiIgZmlsbD0iIzExMWMzMyIgc3Ryb2tlPSIjMzQ0YzcwIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI0MDAiIGN5PSIzMDAiIHI9IjE1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzQ0YzcwIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI0MDAiIGN5PSIzMDAiIHI9IjEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzQ0YzcwIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI0MDAiIGN5PSIzMDAiIHI9IjUwIiBmaWxsPSJub25lIiBzdHJva2U9IiMzNDRjNzAiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Ik0xMDAgMTAwTDcwMCA1MDBNMTAwIDUwMEw3MDAgMTAwTTQwMCAxMDB2NDAwTTEwMCAzMDBoNjAwIiBzdHJva2U9IiMzNDRjNzAiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==');
+            background-size: cover;
+            opacity: 0.5;
+        }
+        
+        .hotspot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 2;
+            box-shadow: 0 0 0 rgba(255, 59, 140, 0.6);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+              box-shadow: 0 0 0 0 rgba(255, 59, 140, 0.6);
+            }
+            70% {
+              box-shadow: 0 0 0 15px rgba(255, 59, 140, 0);
+            }
+            100% {
+              box-shadow: 0 0 0 0 rgba(255, 59, 140, 0);
+            }
+        }
+        
+        .live-location {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: var(--accent-color);
+            border: 3px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            box-shadow: 0 0 0 rgba(0, 225, 169, 0.6);
+            animation: pulse-green 2s infinite;
+        }
+        
+        .safe-spot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 2;
+            box-shadow: 0 0 0 rgba(76, 175, 80, 0.6);
+            animation: pulse-safe 2s infinite;
+        }
+        
+        @keyframes pulse-safe {
+            0% {
+              box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.6);
+            }
+            70% {
+              box-shadow: 0 0 0 15px rgba(76, 175, 80, 0);
+            }
+            100% {
+              box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+        
+        .radius-circle {
+            position: absolute;
+            border: 2px dashed var(--accent-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            opacity: 0.6;
+        }
+        
+        @keyframes pulse-green {
+            0% {
+              box-shadow: 0 0 0 0 rgba(0, 225, 169, 0.6);
+            }
+            70% {
+              box-shadow: 0 0 0 15px rgba(0, 225, 169, 0);
+            }
+            100% {
+              box-shadow: 0 0 0 0 rgba(0, 225, 169, 0);
+            }
+        }
+        
+        .map-label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(26, 26, 46, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+        
+        .map-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(26, 26, 46, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .map-control-btn {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: none;
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .map-control-btn:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .tooltip {
+            position: absolute;
+            background-color: rgba(26, 26, 46, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 10;
+            max-width: 200px;
+            display: none;
+            pointer-events: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tooltip-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+        
+        .tooltip-content {
+            font-size: 12px;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 150px;
+            position: relative;
+        }
+        
+        .bar-chart {
+            display: flex;
+            height: 100%;
+            align-items: flex-end;
+            gap: 8px;
+        }
+        
+        .bar {
+            flex-grow: 1;
+            background: linear-gradient(to top, var(--primary-color), var(--secondary-color));
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: height 0.5s ease;
+        }
+        
+        .bar::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: white;
+        }
+        
+        .donut-chart {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .donut-chart-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .donut-chart svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .circle-chart {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .circle-chart__circle {
+            animation: circle-chart-fill 2s reverse;
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+        
+        @keyframes circle-chart-fill {
+            to { stroke-dasharray: 0 100; }
+        }
+        
+        .circle-chart__info {
+            animation: circle-chart-appear 2s forwards;
+            opacity: 0;
+            transform: translateY(0.3em);
+        }
+        
+        @keyframes circle-chart-appear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .circle-chart__percent {
+            font-size: 8px;
+            font-weight: bold;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        
+        .circle-chart__subline {
+            font-size: 3px;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        
+        .quote-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .quote {
+            font-style: italic;
+            font-size: 18px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        
+        .quote-author {
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--accent-color);
+        }
+        
+        .alert-list {
+            list-style: none;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .alert-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .alert-high {
+            background-color: #ff3b3b;
+        }
+        
+        .alert-medium {
+            background-color: #ffa93b;
+        }
+        
+        .alert-low {
+            background-color: var(--accent-color);
+        }
+        
+        .alert-info {
+            flex-grow: 1;
+        }
+        
+        .alert-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .alert-time {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .status-indicators {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-icon {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+        
+        .status-online {
+            background-color: var(--accent-color);
+        }
+        
+        .status-offline {
+            background-color: #ff3b3b;
+        }
+        
+        .status-text {
+            font-size: 12px;
+        }
+        
+        .data-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .data-highlight {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--accent-color);
+        }
+        
+        .data-description {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 10px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: auto;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(to right, var(--accent-color), var(--secondary-color));
+            transition: width 0.5s ease;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .map-card {
+                grid-column: span 2;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-card, .quote-card, .stats-card {
+                grid-column: span 1;
+            }
+            
+            nav ul {
+                display: none;
+            }
+        }
+        
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 350px;
+        }
+        
+        .notification {
+            background-color: rgba(26, 26, 46, 0.95);
+            color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(120%);
+            transition: transform 0.5s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .notification-content {
+            flex-grow: 1;
+        }
+        
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .notification-message {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .notification-high .notification-icon {
+            background-color: #ff3b3b;
+        }
+        
+        .notification-medium .notification-icon {
+            background-color: #ffa93b;
+        }
+        
+        .notification-low .notification-icon {
+            background-color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Vaमिका <span>SAFETY</span> ANALyTICS</div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Dashboard</a></li>
+                    <li><a href="#">Analytics</a></li>
+                    <li><a href="#">Reports</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </nav>
+            <div class="buttons">
+                <button class="btn btn-primary" id="emergency-btn">Emergency</button>
+                <button class="btn btn-secondary" id="connect-btn">Connect</button>
+            </div>
+        </header>
+        
+        <div class="tagline">SAFEGUARDING WOMEN EVERYWHERE</div>
+        
+        <div class="dashboard">
+            <div class="card map-card">
+                <div class="card-header">
+                    <div class="card-title">SAFETY MAP</div>
+                    <div class="card-icon">🔍</div>
+                </div>
+                <div id="map">
+                    <div class="map-overlay"></div>
+                    <div class="map-label" id="location-status">LIVE TRACKING</div>
+                    <div class="radius-circle" id="radius-circle"></div>
+                    <div class="live-location" id="live-location"></div>
+                    <div class="tooltip" id="map-tooltip"></div>
+                    <div class="map-controls">
+                        <button class="map-control-btn" id="center-location-btn">Center Location</button>
+                        <button class="map-control-btn" id="show-safe-spots-btn">Show Safe Spots</button>
+                        <button class="map-control-btn" id="refresh-crime-data-btn">Refresh Crime Data</button>
+                    </div>
+                    <!-- Hotspots and safe spots will be added dynamically -->
+                </div>
+            </div>
+            
+          <!-- Empowerment Quotes Section -->
+<div class="card quote-card">
+    <div class="card-header">
+        <div class="card-title">EMPOWERMENT QUOTES</div>
+        <div class="card-icon">💬</div>
+    </div>
+    <div class="quote-container" id="quote-container">
+        <div class="quote" id="quote-text">Loading...</div>
+        <div class="quote-author" id="quote-author"></div>
+    </div>
+</div>
+
+<!-- Safety Tips Section -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">SAFETY TIPS</div>
+        <div class="card-icon">⚠️</div>
+    </div>
+    <p id="safety-tip">Loading...</p>
+</div>
+
+<!-- General Suggestions Section -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">GENERAL SUGGESTIONS</div>
+        <div class="card-icon">💡</div>
+    </div>
+    <p id="general-suggestion">Loading...</p>
+</div>
+
+            
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">THREAT ANALYSIS</div>
+        <div class="card-icon">⚠️</div>
+    </div>
+    <div class="chart-container">
+        <canvas id="threat-chart"></canvas> <!-- Canvas for the Chart -->
+    </div>
+</div>
+
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">SAFETY SCORE</div>
+                    <div class="card-icon">📊</div>
+                </div>
+                <div class="chart-container">
+                    <div class="donut-chart-container">
+                        <div class="circle-chart">
+                            <svg class="circle-chart" viewBox="0 0 33.83098862 33.83098862" xmlns="http://www.w3.org/2000/svg">
+                                <circle class="circle-chart__background" stroke="#efefef" stroke-width="2" fill="none" cx="16.91549431" cy="16.91549431" r="15.91549431" />
+                                <circle id="safety-score-circle" class="circle-chart__circle" stroke="#00acc1" stroke-width="2" stroke-dasharray="85,100" stroke-linecap="round" fill="none" cx="16.91549431" cy="16.91549431" r="15.91549431" />
+                                <g class="circle-chart__info">
+                                    <text id="safety-score-text" class="circle-chart__percent" x="16.91549431" y="15.5" fill="white">85%</text>
+                                    <text class="circle-chart__subline" x="16.91549431" y="20.5" fill="white">Safety Score</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">INCIDENT REPORTS</div>
+                    <div class="card-icon">📝</div>
+                </div>
+                <div class="data-card">
+                    <div class="data-highlight" id="incident-count">--</div>
+                    <div class="data-description">Reports in last 30 days</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="incident-progress" style="width: 65%;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <p id="incident-count" hidden>0</p> <!-- Add this somewhere in the page -->
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">SAFETY ALERTS</div>
+        <div class="card-icon">🔔</div>
+    </div>
+    <ul class="alert-list" id="alert-list">
+        <!-- Alerts will be dynamically added here -->
+    </ul>
+</div>
+
+            
+<div class="card stats-card">
+    <div class="card-header">
+        <div class="card-title">MONTHLY STATISTICS</div>
+        <div class="card-icon">📈</div>
+    </div>
+    <div class="chart-container">
+        <canvas id="stats-chart"></canvas> <!-- 🔹 Replace div with canvas -->
+    </div>
+    <div class="status-indicators">
+        <div class="status-item">
+            <div class="status-icon status-online" id="system-status-icon"></div>
+            <div class="status-text" id="system-status-text">System Online</div>
+        </div>
+        <div class="status-item">
+            <div class="status-icon status-online" id="alerts-status-icon"></div>
+            <div class="status-text" id="alerts-status-text">Alerts Active</div>
+        </div>
+    </div>
+</div>
+
+        </div>
+    </div>
+    
+    <div class="notification-container" id="notification-container">
+        <!-- Notifications will be added dynamically -->
+    </div>
+    <!-- Leaflet.js CSS -->
+<!-- Leaflet.js CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<!-- Leaflet.js JavaScript -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    let map;
+    let userMarker;
+    let routeLayer;
+    let safeSpots = [];
+
+    function initMap() {
+        map = L.map('map').setView([40.7128, -74.0060], 13); // Center map in New York
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Track user location in real-time
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(
+                (position) => {
+                    const userLocation = [position.coords.latitude, position.coords.longitude];
+
+                    if (!userMarker) {
+                        userMarker = L.marker(userLocation, {
+                            icon: L.icon({
+                                iconUrl: 'https://cdn-icons-png.flaticon.com/64/684/684908.png', // User icon
+                                iconSize: [35, 35],
+                                iconAnchor: [17, 34]
+                            })
+                        }).addTo(map).bindPopup("You are here").openPopup();
+                    } else {
+                        userMarker.setLatLng(userLocation);
+                    }
+
+                    map.setView(userLocation, 14);
+                },
+                (error) => {
+                    console.error("Geolocation error:", error);
+                },
+                { enableHighAccuracy: true }
+            );
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+
+        // Fetch real-time safe spots
+        loadSafeSpots();
+    }
+
+    function loadSafeSpots() {
+    console.log("Fetching safe spots...");
+
+    if (!userMarker) {
+        console.warn("User location not available yet!");
+        return;
+    }
+
+    const userLocation = userMarker.getLatLng();
+    const lat = userLocation.lat;
+    const lng = userLocation.lng;
+    const searchRadius = 0.1; // 0.1 degrees (~11 km search area)
+
+    const query = `
+        [out:json];
+        (
+            node["amenity"="hospital"](${lat - searchRadius}, ${lng - searchRadius}, ${lat + searchRadius}, ${lng + searchRadius});
+            node["amenity"="police"](${lat - searchRadius}, ${lng - searchRadius}, ${lat + searchRadius}, ${lng + searchRadius});
+            node["amenity"="fuel"](${lat - searchRadius}, ${lng - searchRadius}, ${lat + searchRadius}, ${lng + searchRadius});
+        );
+        out;
+    `;
+
+    fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("API Response:", data);
+
+            if (!data.elements || data.elements.length === 0) {
+                alert("No safe spots found nearby! Try expanding the search radius.");
+                return;
+            }
+
+            safeSpots = data.elements.map(poi => ({
+                lat: poi.lat,
+                lng: poi.lon,
+                name: poi.tags.name || poi.tags.amenity,
+                type: poi.tags.amenity
+            }));
+
+            console.log("Safe spots added:", safeSpots);
+
+            safeSpots.forEach((spot, index) => {
+                console.log(`Adding marker ${index + 1}:`, spot); // Debugging
+
+                setTimeout(() => {
+                    let iconUrl = "";
+
+                    if (spot.type === "hospital") iconUrl = "https://cdn-icons-png.flaticon.com/64/883/883964.png";
+                    if (spot.type === "police") iconUrl = "https://cdn-icons-png.flaticon.com/64/535/535239.png";
+                    if (spot.type === "fuel") iconUrl = "https://cdn-icons-png.flaticon.com/64/1995/1995456.png";
+
+                    if (!iconUrl) return; // Skip if no icon is set
+
+                    const customIcon = L.icon({
+                        iconUrl,
+                        iconSize: [30, 30]
+                    });
+
+                    L.marker([spot.lat, spot.lng], { icon: customIcon })
+                        .addTo(map)
+                        .bindPopup(`<b>${spot.name}</b><br><button onclick="calculateRoute(${spot.lat}, ${spot.lng})">Go Here</button>`);
+                }, index * 10); // Stagger marker rendering
+            });
+        })
+        .catch(error => console.error("Error loading POIs:", error));
+}
+
+
+    function calculateRoute(destLat, destLng) {
+        if (!userMarker) return alert("User location not available!");
+
+        const start = userMarker.getLatLng();
+        const end = L.latLng(destLat, destLng);
+
+        let apiKey = "5b3ce3597851110001cf6248ddd7d4b6c2c044d180e862cd1d6cd3af";
+        let routeUrl = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${start.lng},${start.lat}&end=${end.lng},${end.lat}`;
+
+        fetch(routeUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (routeLayer) map.removeLayer(routeLayer);
+                let coordinates = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+                routeLayer = L.polyline(coordinates, { color: 'blue' }).addTo(map);
+                map.fitBounds(L.latLngBounds(coordinates));
+            })
+            .catch(error => console.error("Error fetching route:", error));
+    }
+
+    document.addEventListener("DOMContentLoaded", initMap);
+
+    async function fetchCrimeNewsRSS() {
+    console.log("📰 Fetching crime news from Google RSS...");
+
+    if (!navigator.geolocation) {
+        alert("⚠ Geolocation is not supported by your browser.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        console.log(`📍 User Location: ${lat}, ${lng}`);
+
+        // Reverse geocode to get city name (using OpenStreetMap Nominatim API)
+        const locationUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+
+        try {
+            const locationResponse = await fetch(locationUrl);
+            const locationData = await locationResponse.json();
+            let city = locationData.address.city || locationData.address.town || locationData.address.state;
+
+            if (city.toLowerCase() === "uttarakhand") {
+                city = "Dehradun"; // Manually override state name with the capital city
+            }
+
+            console.log(`🏙 Detected City: ${city}`);
+
+            // Google News RSS URL
+            const newsUrl = `https://news.google.com/rss/search?q=crime+in+${city}&hl=en-IN&gl=IN&ceid=IN:en`;
+
+            // Use your backend proxy (`server.js`)
+            const proxyUrl = `http://localhost:5000/api/proxy?url=${encodeURIComponent(newsUrl)}`;
+
+            const newsResponse = await fetch(proxyUrl);
+            const newsText = await newsResponse.text(); // RSS is in XML format
+
+            console.log("📰 Raw RSS Response:", newsText);
+
+            // Parse XML response
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(newsText, "text/xml");
+
+            // Extract all news items
+            const items = xmlDoc.querySelectorAll("item");
+            console.log("📄 Fetched Articles:", items.length);
+
+            // Filter crime-related news using keywords
+            const crimeKeywords = ["crime", "theft", "murder", "assault", "robbery", "kidnapping", "violence"];
+            const filteredArticles = [...items].filter(item => {
+                const title = item.querySelector("title").textContent.toLowerCase();
+                return crimeKeywords.some(keyword => title.includes(keyword));
+            });
+
+            const incidentCount = filteredArticles.length || Math.floor(Math.random() * 5) + 1; // Mock fallback
+
+            // Update UI
+            document.getElementById("incident-count").innerText = incidentCount;
+
+            // Set progress bar width dynamically based on incidents (Max 100)
+            let progressPercentage = Math.min(incidentCount * 10, 100);
+            document.getElementById("incident-progress").style.width = `${progressPercentage}%`;
+
+            console.log(`✅ Crime Incidents Found: ${incidentCount}`);
+
+        } catch (error) {
+            console.error("❌ Error fetching crime data:", error);
+            alert("Failed to fetch crime reports for your location.");
+        }
+    }, (error) => {
+        console.error("⚠ Geolocation error:", error);
+        alert("Failed to get your location.");
+    });
+}
+
+// Call function on page load
+document.addEventListener("DOMContentLoaded", fetchCrimeNewsRSS);
+
+async function updateSafetyAlerts() {
+    console.log("🚨 Updating Safety Alerts...");
+
+    const incidentElement = document.getElementById("incident-count");
+    if (!incidentElement) {
+        console.error("⚠ Safety Alerts: 'incident-count' not found!");
+        return;
+    }
+
+    const alertList = document.getElementById("alert-list");
+    if (!alertList) {
+        console.error("⚠ Safety Alerts: 'alert-list' not found!");
+        return;
+    }
+
+    const incidentCount = parseInt(incidentElement.innerText) || 0;
+    let alertLevel = "🟢 Safe Zone";
+    let alertMessage = "Area is currently safe.";
+
+    if (incidentCount > 10) {
+        alertLevel = "🔴 High Risk!";
+        alertMessage = "High crime detected! Avoid going out at night alone.";
+    } else if (incidentCount > 5) {
+        alertLevel = "🟡 Moderate Risk";
+        alertMessage = "Be cautious! Some crime incidents reported nearby.";
+    }
+
+    // Clear previous alerts
+    alertList.innerHTML = "";
+
+    // Add new alert
+    const alertItem = document.createElement("li");
+    alertItem.classList.add("alert-item");
+    alertItem.innerHTML = `<strong>${alertLevel}</strong> - ${alertMessage}`;
+    alertList.appendChild(alertItem);
+
+    console.log(`🚨 Safety Alert Updated: ${alertLevel}`);
+}
+
+// Call function after crime incidents are updated
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(updateSafetyAlerts, 2000); // Delay to ensure incidents are loaded first
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateEmpowermentQuote();
+    updateSafetyTip();
+    updateGeneralSuggestion();
+
+    // Auto-refresh every 10 seconds
+    setInterval(() => {
+        updateEmpowermentQuote();
+        updateSafetyTip();
+        updateGeneralSuggestion();
+    }, 10000);
+});
+
+// 🔥 Empowerment Quotes
+const empowermentQuotes = [
+    { text: "You are stronger than you think.", author: "Unknown" },
+    { text: "Empowered women empower the world.", author: "Anonymous" },
+    { text: "Believe in yourself and your ability to make a difference.", author: "Eleanor Roosevelt" },
+    { text: "You are not alone. Together, we rise.", author: "Maya Angelou" }
+];
+
+function updateEmpowermentQuote() {
+    const quoteContainer = document.getElementById("quote-text");
+    const authorContainer = document.getElementById("quote-author");
+
+    if (!quoteContainer || !authorContainer) {
+        console.error("⚠ Quote containers not found!");
+        return;
+    }
+
+    const randomQuote = empowermentQuotes[Math.floor(Math.random() * empowermentQuotes.length)];
+    quoteContainer.innerText = `“${randomQuote.text}”`;
+    authorContainer.innerText = `- ${randomQuote.author}`;
+
+    console.log("💬 New Quote Loaded:", randomQuote.text);
+}
+
+// 🔥 Safety Tips
+const safetyTips = [
+    "Always share your live location with a trusted friend when traveling alone.",
+    "Avoid using headphones at full volume while walking at night.",
+    "If you feel unsafe, enter a crowded or well-lit area.",
+    "Keep emergency contacts saved on speed dial."
+];
+
+function updateSafetyTip() {
+    const tipContainer = document.getElementById("safety-tip");
+    if (!tipContainer) {
+        console.error("⚠ Safety Tip container not found!");
+        return;
+    }
+
+    const randomTip = safetyTips[Math.floor(Math.random() * safetyTips.length)];
+    tipContainer.innerText = `🔹 ${randomTip}`;
+    
+    console.log("🛡️ New Safety Tip Loaded:", randomTip);
+}
+
+// 🔥 General Suggestions
+const suggestions = [
+    "Join a local women's self-defense class to build confidence.",
+    "Install a safety app to quickly alert emergency contacts.",
+    "Use public transport wisely—choose well-lit areas while waiting.",
+    "Learn basic first aid techniques for emergency situations."
+];
+
+function updateGeneralSuggestion() {
+    const suggestionContainer = document.getElementById("general-suggestion");
+    if (!suggestionContainer) {
+        console.error("⚠ General Suggestion container not found!");
+        return;
+    }
+
+    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+    suggestionContainer.innerText = `💡 ${randomSuggestion}`;
+
+    console.log("💡 New Suggestion Loaded:", randomSuggestion);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateThreatAnalysis(); // Initial load
+    setInterval(updateThreatAnalysis, 10000); // Auto-update every 10s
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateThreatAnalysis(); // Initial load
+    setInterval(updateThreatAnalysis, 10000); // Auto-refresh every 10s
+});
+
+async function updateThreatAnalysis() {
+    console.log("📊 Fetching Real Crime Data for Threat Analysis...");
+
+    if (!navigator.geolocation) {
+        alert("⚠ Geolocation is not supported by your browser.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        console.log(`📍 User Location: ${lat}, ${lng}`);
+
+        try {
+            // Get city name from coordinates
+            const city = await reverseGeocode(lat, lng);
+            console.log(`🏙 Detected City: ${city}`);
+
+            // Fetch crime incidents from Google News RSS
+            const incidentCount = await fetchCrimeIncidents(city);
+            console.log(`🚨 Total Crime Incidents: ${incidentCount}`);
+
+            // Categorize into Threat Levels
+            const threatLevels = [0, 0, 0, 0]; // [Low, Moderate, High, Severe]
+            if (incidentCount <= 5) threatLevels[0] = incidentCount;
+            else if (incidentCount <= 10) threatLevels[1] = incidentCount;
+            else if (incidentCount <= 15) threatLevels[2] = incidentCount;
+            else threatLevels[3] = incidentCount;
+
+            // Destroy previous chart instance if exists
+            if (window.threatChart) {
+                window.threatChart.destroy();
+            }
+
+            // Get chart context
+            const ctx = document.getElementById("threat-chart").getContext("2d");
+
+            // Create new chart
+            window.threatChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: ["Low", "Moderate", "High", "Severe"],
+                    datasets: [{
+                        label: "Crime Threat Level",
+                        data: threatLevels,
+                        backgroundColor: ["green", "yellow", "orange", "red"],
+                        borderColor: ["darkgreen", "goldenrod", "darkorange", "darkred"],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            console.log("✅ Threat Analysis Chart Updated!");
+
+        } catch (error) {
+            console.error("❌ Error updating Threat Analysis:", error);
+        }
+    });
+}
+
+// Fetch crime incidents from Google News RSS
+async function fetchCrimeIncidents(city) {
+    const newsUrl = `https://news.google.com/rss/search?q=crime+in+${city}&hl=en-IN&gl=IN&ceid=IN:en`;
+    const proxyUrl = `http://localhost:5000/api/proxy?url=${encodeURIComponent(newsUrl)}`;
+
+    try {
+        const newsResponse = await fetch(proxyUrl);
+        const newsText = await newsResponse.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(newsText, "text/xml");
+        const items = xmlDoc.querySelectorAll("item");
+
+        // Filter crime-related articles
+        const crimeKeywords = ["crime", "theft", "murder", "assault", "robbery", "kidnapping", "violence"];
+        const filteredArticles = [...items].filter(item =>
+            crimeKeywords.some(keyword => item.querySelector("title").textContent.toLowerCase().includes(keyword))
+        );
+
+        return filteredArticles.length;
+
+    } catch (error) {
+        console.error("❌ Error fetching crime incidents:", error);
+        return 0; // Default if fetch fails
+    }
+}
+
+// Reverse geocode (lat, lng) to city name
+async function reverseGeocode(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.address.city || data.address.town || data.address.state;
+    } catch (error) {
+        console.error("❌ Error fetching city name:", error);
+        return "Unknown";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateMonthlyStats(); // Initial load
+    setInterval(updateMonthlyStats, 30000); // Auto-refresh every 30s
+});
+
+async function updateMonthlyStats() {
+    console.log("📊 Fetching Monthly Crime Statistics...");
+
+    const canvas = document.getElementById("stats-chart");
+
+    // 🔹 Ensure canvas exists before trying to access getContext
+    if (!canvas) {
+        console.error("❌ Error: Canvas element 'stats-chart' not found!");
+        return;
+    }
+
+    const ctx = canvas.getContext("2d"); // ✅ This should work now
+
+    if (!navigator.geolocation) {
+        alert("⚠ Geolocation is not supported by your browser.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        console.log(`📍 User Location: ${lat}, ${lng}`);
+
+        try {
+            // Get city name from coordinates
+            const city = await reverseGeocode(lat, lng);
+            console.log(`🏙 Detected City: ${city}`);
+
+            // Fetch crime incidents for the last 6 months
+            const monthlyData = await fetchCrimeIncidents(city);
+            console.log("📊 Monthly Crime Data:", monthlyData);
+
+            // Destroy previous chart instance if exists
+            if (window.statsChart) {
+                window.statsChart.destroy();
+            }
+
+            // Create new bar chart
+            window.statsChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: monthlyData.labels,
+                    datasets: [{
+                        label: "Crime Reports",
+                        data: monthlyData.values,
+                        backgroundColor: "rgba(255, 99, 132, 0.5)",
+                        borderColor: "rgba(255, 99, 132, 1)",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            console.log("✅ Monthly Statistics Chart Updated!");
+
+        } catch (error) {
+            console.error("❌ Error updating Monthly Statistics:", error);
+        }
+    });
+}
+
+
+</script>
+
+
+    
+</body>

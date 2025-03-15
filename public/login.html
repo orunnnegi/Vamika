@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaमिका - Login & Signup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff758c, #ff7eb3, #ffb199);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            color: white;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .tab-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+
+        .tab {
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #ff758c;
+            font-weight: bold;
+        }
+
+        .form-container {
+            margin-top: 20px;
+        }
+
+        .input-group {
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #ff758c;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #ffd1dc;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Welcome Animation */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ff758c;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+            z-index: 10;
+        }
+
+        .quote {
+            font-size: 1.5rem;
+            font-style: italic;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="welcome-screen" id="welcomeScreen">
+        Welcome to Vaमिका!
+        <div class="quote" id="randomQuote"></div>
+    </div>
+
+    <div class="container">
+        <h2>Welcome to Vaमिका</h2>
+
+        <div class="tab-container">
+            <div class="tab active" id="login-tab">Login</div>
+            <div class="tab" id="signup-tab">Sign Up</div>
+        </div>
+
+        <div class="form-container">
+            <!-- LOGIN FORM -->
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+
+            <!-- SIGNUP FORM -->
+            <form id="signup-form" class="hidden">
+                <div class="input-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" placeholder="Enter your full name" required>
+                </div>
+                <div class="input-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" placeholder="Enter your age" required>
+                </div>
+                <div class="input-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const quotes = [
+            "Empowering women, ensuring safety.",
+            "Your security, our priority.",
+            "Stay safe, stay strong!",
+            "Together, we build a safer world."
+        ];
+
+        document.getElementById("randomQuote").innerText = quotes[Math.floor(Math.random() * quotes.length)];
+
+        // Hide welcome screen after 5 seconds
+        setTimeout(() => {
+            document.getElementById("welcomeScreen").style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById("welcomeScreen").style.display = "none";
+            }, 1000);
+        }, 5000);
+
+        // Toggle Between Login & Signup Forms
+        document.getElementById("login-tab").addEventListener("click", () => {
+            document.getElementById("login-form").classList.remove("hidden");
+            document.getElementById("signup-form").classList.add("hidden");
+        });
+
+        document.getElementById("signup-tab").addEventListener("click", () => {
+            document.getElementById("signup-form").classList.remove("hidden");
+            document.getElementById("login-form").classList.add("hidden");
+        });
+
+        // Login Submission
+        document.getElementById("login-form").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            const response = await fetch("http://localhost:5000/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                localStorage.setItem("token", (await response.json()).token);
+                setTimeout(() => { window.location.href = "main.html"; }, 5000);
+            }
+        });
+
+        // Signup Submission
+        document.getElementById("signup-form").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const response = await fetch("http://localhost:5000/api/auth/signup", { method: "POST" });
+
+            if (response.ok) {
+                setTimeout(() => { window.location.href = "dashboard.html"; }, 5000);
+            }
+        });
+    </script>
+
+</body>
+</html>

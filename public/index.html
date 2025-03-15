@@ -1,1 +1,83 @@
-"<!DOCTYPE html><html><head><title>Women Safety</title></head><body></body></html>" 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaमिका</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            background: -webkit-linear-gradient(45deg, #ff0080, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            animation: fadeText 2s ease-in-out forwards;
+        }
+
+        p {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            opacity: 0;
+            animation: fadeText 2s ease-in-out 2s forwards;
+        }
+
+        @keyframes fadeText {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* After 5 seconds, redirect */
+        @keyframes redirect {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .hide {
+            animation: redirect 1s ease-in-out 5s forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container hide">
+        <h1>Vaमिका</h1>
+        <p>"Your protection at every step."</p>
+    </div>
+
+    <script>
+        // Redirect after 5.5 seconds
+        setTimeout(() => {
+            window.location.href = "login.html"; // Change this to your login/signup page
+        }, 5500);
+    </script>
+
+</body>
+</html>
