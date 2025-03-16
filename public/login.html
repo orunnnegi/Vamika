@@ -103,7 +103,6 @@
             display: none;
         }
 
-        /* Welcome Animation */
         .welcome-screen {
             position: fixed;
             top: 0;
@@ -147,7 +146,6 @@
         </div>
 
         <div class="form-container">
-            <!-- LOGIN FORM -->
             <form id="login-form">
                 <div class="input-group">
                     <label for="email">Email</label>
@@ -160,7 +158,6 @@
                 <button type="submit" class="btn">Login</button>
             </form>
 
-            <!-- SIGNUP FORM -->
             <form id="signup-form" class="hidden">
                 <div class="input-group">
                     <label for="name">Full Name</label>
@@ -193,7 +190,6 @@
 
         document.getElementById("randomQuote").innerText = quotes[Math.floor(Math.random() * quotes.length)];
 
-        // Hide welcome screen after 5 seconds
         setTimeout(() => {
             document.getElementById("welcomeScreen").style.opacity = "0";
             setTimeout(() => {
@@ -201,7 +197,6 @@
             }, 1000);
         }, 5000);
 
-        // Toggle Between Login & Signup Forms
         document.getElementById("login-tab").addEventListener("click", () => {
             document.getElementById("login-form").classList.remove("hidden");
             document.getElementById("signup-form").classList.add("hidden");
@@ -211,32 +206,48 @@
             document.getElementById("signup-form").classList.remove("hidden");
             document.getElementById("login-form").classList.add("hidden");
         });
-
-        // Login Submission
         document.getElementById("login-form").addEventListener("submit", async function (e) {
-            e.preventDefault();
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-            const response = await fetch("http://localhost:5000/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
-            });
+    const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    });
 
-            if (response.ok) {
-                localStorage.setItem("token", (await response.json()).token);
-                setTimeout(() => { window.location.href = "main.html"; }, 5000);
-            }
-        });
+    const data = await response.json();
 
-        // Signup Submission
+    if (response.ok) {
+        alert("Login successful!");
+        // Redirect to dashboard or desired page
+        window.location.href = "dashboard.html";
+    } else {
+        alert(data.message || "Invalid credentials. Please try again.");
+    }
+});
+
         document.getElementById("signup-form").addEventListener("submit", async function (e) {
             e.preventDefault();
-            const response = await fetch("http://localhost:5000/api/auth/signup", { method: "POST" });
+            const name = document.getElementById("name").value;
+            const age = document.getElementById("age").value;
+            const email = document.getElementById("signup-email").value;
+            const password = document.getElementById("signup-password").value;
+
+            const response = await fetch("http://localhost:5000/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, age, email, password })
+            });
+
+            const data = await response.json();
 
             if (response.ok) {
+                alert("Signup successful!");
                 setTimeout(() => { window.location.href = "dashboard.html"; }, 5000);
+            } else {
+                alert(data.message || "Signup failed. Please try again.");
             }
         });
     </script>
